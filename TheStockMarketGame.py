@@ -1,12 +1,12 @@
 import os
 
 # init code
+run = False
 # load user accounts
 users = []
 if os.path.exists('data/users.txt'):
     file = open('data/users.txt', 'r')
     for l in file:
-        print(l)
         users.append(l.strip())
     file.close()
 
@@ -34,10 +34,15 @@ print("User: %s" % user)
 
 # run loop
 while run:
-    # load user data
+    # load user data transaction history
     # asks for command
-    command = input('What would you like to do? \nhelp for help')
-    # if command exit, cleanup
+    command = input('What would you like to do? ')
+    # transaction history command
+    if command == 'history':
+        print('B/S:\tDatestamp:\tSymbol:\tQuantity:\tShare Price:\tTotal')
+    # buy stock command, symbol and num shares
+    # sell stock command, symbol and num shares
+    # see portfolio
     if command == 'help':
         print('here is your help')
     elif command == 'exit':
@@ -45,12 +50,12 @@ while run:
         # cleanup code here
         # write user data
     else:
-        print('That command does not exist.')
+        print('That command does not exist. Type help for help')
 
 
 # exit code
 # save accounts to file
 file = open('data/users.txt', 'w')
 for u in users:
-    file.write('%s\n'% u)
+    file.write('%s\n' % u)
 file.close()
