@@ -9,11 +9,13 @@ import scrapy
 class QuoteSpider(scrapy.Spider):
     name = "getQuote"
 
-    stock = 'AMD'
-    start_urls = ["https://www.barchart.com/stocks/quotes/%s/overview" % stock]
+    def __init__(self, symbol=''):
+        self.stock = symbol
+        self.start_urls = ["https://finance.yahoo.com/quote/%s" % symbol]
 
     def parse(self, response):
-        filename = 'quote-%s.html' % stock
-        with open(filename, 'wb') as f:
-            f.write(response.body)
-        self.log('Saved file %s' % filename)
+        quote = response.xpath('//span[@data-reactid="14"]/text()').get()
+        file = open('quote.txt', 'w')
+        file.write(quote)
+        file.close()
+        self.log('%s %s' % (self.symbol, quote))
