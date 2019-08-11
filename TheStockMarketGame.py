@@ -1,4 +1,5 @@
 import os
+import gameFunctions as gf
 
 # init code
 run = False
@@ -30,21 +31,45 @@ while True:
             run = True
             break
 
+# save accounts to file
+file = open('data/users.txt', 'w')
+for u in users:
+    file.write('%s\n' % u)
+file.close()
+
 print("User: %s" % user)
 
 # run loop
 while run:
-    # load user data transaction history
     # asks for command
     command = input('What would you like to do? ')
     # transaction history command
     if command == 'history':
-        print('B/S:\tDatestamp:\tSymbol:\tQuantity:\tShare Price:\tTotal')
+        gf.showHistory(user)
+
     # buy stock command, symbol and num shares
+    elif command == 'buy':
+        symbol = input('What symbol are you buying?')
+        numShares = input('How many shares would you like to buy?')
+        # TODO: idiot checking
+        numShares = int(numShares.strip())
+        gf.buyStock(user, symbol, numShares)
+
     # sell stock command, symbol and num shares
+    elif command == 'sell':
+        symbol = input('What symbol are you buying?')
+        numShares = input('How many shares would you like to buy?')
+        # TODO: idiot checking
+        numShares = int(numShares.strip())
+        gf.sellStock(user, symbol, numShares)
+
     # see portfolio
-    if command == 'help':
+    elif command == 'portfolio':
+        gf.showPortfolio(user)
+
+    elif command == 'help':
         print('here is your help')
+
     elif command == 'exit':
         run = False
         # cleanup code here
@@ -54,8 +79,4 @@ while run:
 
 
 # exit code
-# save accounts to file
-file = open('data/users.txt', 'w')
-for u in users:
-    file.write('%s\n' % u)
-file.close()
+
