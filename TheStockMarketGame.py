@@ -47,6 +47,12 @@ while run:
     if command == 'history':
         gf.showHistory(user)
 
+    elif command == 'quote':
+        # TODO: idiot proofing, program crashes when a symbol that doesn't exist is inputted
+        symbol = input('What symbol are you looking for?').strip().upper()
+        quote = gf.getQuote(symbol)
+        print("%s is trading for %g per share" % (symbol, quote))
+
     # buy stock command, symbol and num shares
     elif command == 'buy':
         symbol = input('What symbol are you buying?')
@@ -57,7 +63,7 @@ while run:
 
     # sell stock command, symbol and num shares
     elif command == 'sell':
-        symbol = input('What symbol are you buying?')
+        symbol = input('What symbol are you selling?')
         numShares = input('How many shares would you like to buy?')
         # TODO: idiot checking
         numShares = int(numShares.strip())
@@ -68,7 +74,7 @@ while run:
         gf.showPortfolio(user)
 
     elif command == 'help':
-        print('here is your help')
+        print('Commands: quote, buy, sell, portfolio, history, exit')
 
     elif command == 'exit':
         run = False
