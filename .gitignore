@@ -107,5 +107,5 @@ venv.bak/
 .idea/
 
 #program data files
-data/
+data/*
 quote.txt

@@ -50,17 +50,19 @@ def loadHistory(user):
 
 # str, str, int -> void
 def buyStock(user, symbol, quantity):
-    quote = getQuote(symbol)
+    quote = getQuote(symbol.upper())
     portfolio = loadPortfolio(user)
     history = loadHistory(user)
 
     for i in range(len(portfolio)):
-        if symbol == portfolio[i][0]:
+        if symbol.upper() == portfolio[i][0]:
             portfolio[i][1] += quantity
             portfolio[i][2] += quote * quantity
             history.append([symbol, quantity, quote, quote * quantity, 0])
+            break
         elif i == len(portfolio) - 1:
             portfolio.append([symbol, quantity, quantity * quote])
+            history.append([symbol, quantity, quote, quote * quantity, 0])
     file = open('data/%s-portfolio.txt' % user, 'w')
     for e in portfolio:
         file.write('%s %s %s\n' %(e[0].upper(), str(e[1]), str(e[2]) ) )
@@ -74,16 +76,20 @@ def buyStock(user, symbol, quantity):
 
 # str, str, int -> void
 def sellStock(user, symbol, quantity):
-    quote = getQuote(symbol)
+    quote = getQuote(symbol.upper())
     portfolio = loadPortfolio(user)
+    history = loadHistory(user)
 
     for i in range(len(portfolio)):
-        if symbol == portfolio[i][0]:
+        if symbol.upper() == portfolio[i][0]:
             if quantity <= portfolio[i][1]:
                 portfolio[i][1] -= quantity
                 portfolio[i][2] -= quote * quantity
+                history.append([symbol, quantity, quote, 0, quote * quantity])
+                break
             else:
                 print('You do not have enough shares to sell.')
+                break
         elif i == len(portfolio) - 1:
             print('You do not have enough shares to sell.')
     file = open('data/%s-portfolio.txt' % user, 'w')
@@ -91,6 +97,10 @@ def sellStock(user, symbol, quantity):
         file.write('%s %s %s\n' % (e[0].upper(), str(e[1]), str(e[2])))
     file.close()
     # modify history file
+    file = open('data/%s-history.txt' % user, 'w')
+    for e in history:
+        file.write('%s %s %s %s %s\n' % (e[0].upper(), str(e[1]), str(e[2]), str(e[3]), str(e[4])))
+    file.close()
 
 
 # str -> void

@@ -49,22 +49,22 @@ while run:
 
     elif command == 'quote':
         # TODO: idiot proofing, program crashes when a symbol that doesn't exist is inputted
-        symbol = input('What symbol are you looking for?').strip().upper()
+        symbol = input('What symbol are you looking for? ').strip().upper()
         quote = gf.getQuote(symbol)
         print("%s is trading for %g per share" % (symbol, quote))
 
     # buy stock command, symbol and num shares
     elif command == 'buy':
-        symbol = input('What symbol are you buying?')
-        numShares = input('How many shares would you like to buy?')
+        symbol = input('What symbol are you buying? ')
+        numShares = input('How many shares would you like to buy? ')
         # TODO: idiot checking
         numShares = int(numShares.strip())
         gf.buyStock(user, symbol, numShares)
 
     # sell stock command, symbol and num shares
     elif command == 'sell':
-        symbol = input('What symbol are you selling?')
-        numShares = input('How many shares would you like to buy?')
+        symbol = input('What symbol are you selling? ')
+        numShares = input('How many shares would you like to sell? ')
         # TODO: idiot checking
         numShares = int(numShares.strip())
         gf.sellStock(user, symbol, numShares)
