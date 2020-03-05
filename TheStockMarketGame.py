@@ -14,7 +14,7 @@ if os.path.exists('data/users.txt'):
 # login code
 while True:
     # ask user for account
-    user = input('Input your user name, exit to exit.\n')
+    user = input('Input your user name, exit to exit.\n').strip()
     user = user.strip()
     # if account exists login
     if user in users:
@@ -32,17 +32,23 @@ while True:
             break
 
 # save accounts to file
-file = open('data/users.txt', 'w')
-for u in users:
-    file.write('%s\n' % u)
-file.close()
-
+if os.path.exists('data/users.txt'):
+    file = open('data/users.txt', 'w')
+    for u in users:
+       file.write('%s\n' % u)
+    file.close()
+else:
+    os.system('mkdir data')
+    file = open('data/users.txt', 'w')
+    for u in users:
+        file.write('%s\n' % u)
+    file.close()
 print("User: %s" % user)
 
 # run loop
 while run:
     # asks for command
-    command = input('What would you like to do? ')
+    command = input('What would you like to do? ').strip()
     # transaction history command
     if command == 'history':
         gf.showHistory(user)
@@ -51,30 +57,33 @@ while run:
         # TODO: idiot proofing, program crashes when a symbol that doesn't exist is inputted
         symbol = input('What symbol are you looking for? ').strip().upper()
         quote = gf.getQuote(symbol)
-        print("%s is trading for %g per share" % (symbol, quote))
+        print("\n%s is trading for $%g per share" % (symbol, quote))
 
     # buy stock command, symbol and num shares
     elif command == 'buy':
-        symbol = input('What symbol are you buying? ')
-        numShares = input('How many shares would you like to buy? ')
+        symbol = input('What symbol are you buying? ').strip()
+        numShares = input('How many shares would you like to buy? ').strip()
         # TODO: idiot checking
         numShares = int(numShares.strip())
         gf.buyStock(user, symbol, numShares)
 
     # sell stock command, symbol and num shares
     elif command == 'sell':
-        symbol = input('What symbol are you selling? ')
-        numShares = input('How many shares would you like to sell? ')
+        symbol = input('What symbol are you selling? ').strip()
+        numShares = input('How many shares would you like to sell? ').strip()
         # TODO: idiot checking
         numShares = int(numShares.strip())
         gf.sellStock(user, symbol, numShares)
+
+    elif command == 'wallet':
+        gf.wallet(user)
 
     # see portfolio
     elif command == 'portfolio':
         gf.showPortfolio(user)
 
     elif command == 'help':
-        print('Commands: quote, buy, sell, portfolio, history, exit')
+        print('Commands: quote, buy, sell, wallet, portfolio, history, exit')
 
     elif command == 'exit':
         run = False

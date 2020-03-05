@@ -3,7 +3,13 @@ import os
 
 # str -> float
 def getQuote(symbol):
-    os.system('python3 -m scrapy crawl getQuote -a symbol=\"%s\"' % symbol)
+    if os.name == 'Linux':
+        os.system('python3 -m scrapy crawl getQuote -a symbol=\"%s\"' % symbol)
+    elif os.name == 'nt':
+        os.system('python -m scrapy crawl getQuote -a symbol=\"%s\"' % symbol)
+    else:
+        os.system('python -m scrapy crawl getQuote -a symbol=\"%s\"' % symbol)
+
     file = open('quote.txt', 'r')
     for l in file:
         quote = l
@@ -11,7 +17,7 @@ def getQuote(symbol):
     os.system('rm quote.txt')
     return float(quote.strip())
 
-
+# TODO: turn portfolio into dictionary
 # str -> 2darr[str, int, float]
 def loadPortfolio(user):
     if os.path.exists('data/%s-portfolio.txt' % user):
@@ -53,28 +59,34 @@ def buyStock(user, symbol, quantity):
     quote = getQuote(symbol.upper())
     portfolio = loadPortfolio(user)
     history = loadHistory(user)
+    balance = getBalance(user)
 
-    for i in range(len(portfolio)):
-        if symbol.upper() == portfolio[i][0]:
-            portfolio[i][1] += quantity
-            portfolio[i][2] += quote * quantity
-            history.append([symbol, quantity, quote, quote * quantity, 0])
-            break
-        elif i == len(portfolio) - 1:
-            portfolio.append([symbol, quantity, quantity * quote])
-            history.append([symbol, quantity, quote, quote * quantity, 0])
-    file = open('data/%s-portfolio.txt' % user, 'w')
-    for e in portfolio:
-        file.write('%s %s %s\n' %(e[0].upper(), str(e[1]), str(e[2]) ) )
-    file.close()
-    # modify history file
-    file = open('data/%s-history.txt' % user, 'w')
-    for e in history:
-        file.write('%s %s %s %s %s\n' % (e[0].upper(), str(e[1]), str(e[2]), str(e[3]), str(e[4]) ) )
-    file.close()
+    if quote * quantity <= balance:
+        setBalance(user, balance - quote * quantity)
+        for i in range(len(portfolio)):
+            if symbol.upper() == portfolio[i][0]:
+                portfolio[i][1] += quantity
+                portfolio[i][2] += quote * quantity
+                history.append([symbol, quantity, quote, quote * quantity, 0])
+                break
+            elif i == len(portfolio) - 1:
+                portfolio.append([symbol, quantity, quantity * quote])
+                history.append([symbol, quantity, quote, quote * quantity, 0])
+        file = open('data/%s-portfolio.txt' % user, 'w')
+        for e in portfolio:
+            file.write('%s %s %s\n' %(e[0].upper(), str(e[1]), str(e[2]) ) )
+        file.close()
+        # modify history file
+        file = open('data/%s-history.txt' % user, 'w')
+        for e in history:
+            file.write('%s %s %s %s %s\n' % (e[0].upper(), str(e[1]), str(e[2]), str(e[3]), str(e[4]) ) )
+        file.close()
+    else:
+        print("you cannot afford that transaction")
 
 
 # str, str, int -> void
+# TODO: can sell stock that I do not have
 def sellStock(user, symbol, quantity):
     quote = getQuote(symbol.upper())
     portfolio = loadPortfolio(user)
@@ -83,6 +95,7 @@ def sellStock(user, symbol, quantity):
     for i in range(len(portfolio)):
         if symbol.upper() == portfolio[i][0]:
             if quantity <= portfolio[i][1]:
+                setBalance(user, getBalance(user) + quote * quantity)
                 portfolio[i][1] -= quantity
                 portfolio[i][2] -= quote * quantity
                 history.append([symbol, quantity, quote, 0, quote * quantity])
@@ -144,3 +157,40 @@ def showHistory(user):
     percent_change = (sold - bought)/bought * 100
     print('\t\t\t\t\t\t%g\t\t%g\t\t%g percent' % (bought, sold, percent_change))
 
+
+# str -> float
+def getBalance(user):
+    balance = 0
+    if os.path.exists('data/%s-wallet.txt' % user):
+        file = open('data/%s-wallet.txt' % user, 'r')
+        balance = float(file.readline().strip())
+        file.close()
+    return balance
+
+
+# str , float -> void
+def setBalance(user, newBalance):
+    file = open('data/%s-wallet.txt' % user, 'w')
+    file.write(str(newBalance))
+    file.close()
+
+
+# str -> void
+def wallet(user):
+    balance = getBalance(user)
+
+    while True:
+        command = input("You have an account balance of $%g \nWould you like to add, remove, or exit?\n" % balance).strip()
+        if command == "add":
+            #TODO: idiot proofing
+            add = float(input("How much would you like to add to your account?\n").strip())
+            balance += add
+        elif command == "remove":
+            add = float(input("How much would you like to remove from your account?\n").strip())
+            if add <= balance:
+                balance -= add
+            else:
+                print("You do not have that much money in your account.")
+        elif command == "exit":
+            setBalance(user, balance)
+            break
