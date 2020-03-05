@@ -3,7 +3,13 @@ import os
 
 # str -> float
 def getQuote(symbol):
-    os.system('python3 -m scrapy crawl getQuote -a symbol=\"%s\"' % symbol)
+    if os.name == 'Linux':
+        os.system('python3 -m scrapy crawl getQuote -a symbol=\"%s\"' % symbol)
+    elif os.name == 'nt':
+        os.system('python -m scrapy crawl getQuote -a symbol=\"%s\"' % symbol)
+    else:
+        os.system('python -m scrapy crawl getQuote -a symbol=\"%s\"' % symbol)
+
     file = open('quote.txt', 'r')
     for l in file:
         quote = l
@@ -75,6 +81,7 @@ def buyStock(user, symbol, quantity):
 
 
 # str, str, int -> void
+# TODO: can sell stock that I do not have
 def sellStock(user, symbol, quantity):
     quote = getQuote(symbol.upper())
     portfolio = loadPortfolio(user)
