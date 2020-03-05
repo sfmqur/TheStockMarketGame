@@ -11,11 +11,10 @@ if os.path.exists('data/users.txt'):
         users.append(l.strip())
     file.close()
 
-# TODO: add wallet , a way to add funds, and checking wallet balance
 # login code
 while True:
     # ask user for account
-    user = input('Input your user name, exit to exit.\n')
+    user = input('Input your user name, exit to exit.\n').strip()
     user = user.strip()
     # if account exists login
     if user in users:
@@ -58,7 +57,7 @@ while run:
         # TODO: idiot proofing, program crashes when a symbol that doesn't exist is inputted
         symbol = input('What symbol are you looking for? ').strip().upper()
         quote = gf.getQuote(symbol)
-        print("\n%s is trading for %g per share" % (symbol, quote))
+        print("\n%s is trading for $%g per share" % (symbol, quote))
 
     # buy stock command, symbol and num shares
     elif command == 'buy':
@@ -76,12 +75,15 @@ while run:
         numShares = int(numShares.strip())
         gf.sellStock(user, symbol, numShares)
 
+    elif command == 'wallet':
+        gf.wallet(user)
+
     # see portfolio
     elif command == 'portfolio':
         gf.showPortfolio(user)
 
     elif command == 'help':
-        print('Commands: quote, buy, sell, portfolio, history, exit')
+        print('Commands: quote, buy, sell, wallet, portfolio, history, exit')
 
     elif command == 'exit':
         run = False
