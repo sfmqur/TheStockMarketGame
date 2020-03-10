@@ -65,8 +65,9 @@ while run:
         symbol = input('What symbol are you buying? ').strip()
         numShares = input('How many shares would you like to buy? ').strip()
         # TODO: idiot checking
-        numShares = int(numShares.strip())
-        gf.buyStock(user, symbol, numShares)
+        if symbol != 'exit' and numShares != '0':
+            numShares = int(numShares.strip())
+            gf.buyStock(user, symbol, numShares)
 
     # sell stock command, symbol and num shares
     elif command == 'sell':
