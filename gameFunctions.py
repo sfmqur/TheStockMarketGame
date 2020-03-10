@@ -123,7 +123,7 @@ def buyStock(user, symbol, quantity):
             portfolio[symbol][3] = 100 * (portfolio[symbol][2] - portfolio[symbol][1])/portfolio[symbol][1]
             history.append([symbol, quantity, quote, quote*quantity, 0])
         else:
-            portfolio[symbol] = [quantity, quote]
+            portfolio[symbol] = [quantity, quote, quote, 0]
             history.append([symbol, quantity, quote, quote * quantity, 0])
 
         setPortfolio(user, portfolio)

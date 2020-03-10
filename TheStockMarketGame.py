@@ -28,6 +28,7 @@ while True:
         response = response.strip()
         if response == 'y':
             users.append(user)
+            gf.setBalance(user, 0)
             run = True
             break
 
