@@ -173,6 +173,8 @@ def setBalance(user, newBalance):
     file.close()
 
 
+# TODO: have wallet keep track of amount added to account and vs account value. and percent change of that
+# maybe add this output to the end of show portfolio
 # str -> void
 def wallet(user):
     balance = getBalance(user)
