@@ -36,7 +36,7 @@ while True:
 if os.path.exists('data/users.txt'):
     file = open('data/users.txt', 'w')
     for u in users:
-       file.write('%s\n' % u)
+        file.write('%s\n' % u)
     file.close()
 else:
     os.system('mkdir data')

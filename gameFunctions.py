@@ -140,29 +140,20 @@ def sellStock(user, symbol, quantity):
     quote = getQuote(symbol.upper())
     portfolio = loadPortfolio(user)
     history = loadHistory(user)
+    symbol = symbol.upper()
 
-    for i in range(len(portfolio)):
-        if symbol.upper() == portfolio[i][0]:
-            if quantity <= portfolio[i][1]:
-                setBalance(user, getBalance(user) + quote * quantity)
-                portfolio[i][1] -= quantity
-                portfolio[i][2] -= quote * quantity
-                history.append([symbol, quantity, quote, 0, quote * quantity])
-                break
-            else:
-                print('You do not have enough shares to sell.')
-                break
-        elif i == len(portfolio) - 1:
-            print('You do not have enough shares to sell.')
-    file = open('data/%s-portfolio.txt' % user, 'w')
-    for e in portfolio:
-        file.write('%s %s %s\n' % (e[0].upper(), str(e[1]), str(e[2])))
-    file.close()
-    # modify history file
-    file = open('data/%s-history.txt' % user, 'w')
-    for e in history:
-        file.write('%s %s %s %s %s\n' % (e[0].upper(), str(e[1]), str(e[2]), str(e[3]), str(e[4])))
-    file.close()
+    if symbol in portfolio.keys():
+        if portfolio[symbol][0] >= quantity:
+            portfolio[symbol][0] -= quantity
+            history.append([symbol, quantity, quote, 0, quote * quantity])
+
+            portfolio[symbol][2] = quote
+            portfolio[symbol][3] = 100 * (portfolio[symbol][2] - portfolio[symbol][1]) / portfolio[symbol][1]
+
+            setPortfolio(user, portfolio)
+            setHistory(user, history)
+    else:
+        print("\nYou do not have enough %s stock to sell." %symbol)
 
 
 # str -> float
