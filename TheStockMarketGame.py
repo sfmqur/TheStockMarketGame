@@ -80,6 +80,9 @@ while run:
 
     # see portfolio
     elif command == 'portfolio':
+        sub = input("Would you like to refresh the current portfolio prices? (y/n): ").strip()
+        if sub == 'yes' or sub == 'y':
+            gf.refreshPortfolio(user)
         gf.showPortfolio(user)
 
     elif command == 'help':

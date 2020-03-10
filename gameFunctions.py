@@ -18,9 +18,38 @@ def getQuote(symbol):
     return float(quote.strip())
 
 
-# TODO: turn portfolio into dictionary
-# str -> 2darr[str, int, float]
+# str -> dict of array[int, float, float, float]
 def loadPortfolio(user):
+    if os.path.exists('data/%s-portfolio.txt' % user):
+        file = open('data/%s-portfolio.txt' % user, 'r')
+        portfolio = {}
+        for l in file:
+            entry = l.strip().split()
+            portfolio[entry[0]] = [int(entry[1]), float(entry[2]), float(entry[3]), float(entry[4])]
+        file.close()
+        return portfolio
+    else:
+        return {}
+
+
+# str, dict of arr[int, float, float, float]
+def setPortfolio(user, port):
+    file = open('data/%s-portfolio.txt' % user, 'w')
+    for stock in port.keys():
+        file.write('%s %s %s %s %s\n' %( stock, str(port[stock][0]), str(port[stock][1]),str(port[stock][2]),str(port[stock][3]) ))
+    file.close()
+
+
+# str -> void
+def showPortfolio(user):
+    port = loadPortfolio(user)
+    print('Symbol:\t\t\tShares:\t\t\tThen::\t\t\ttNow:\t\t\tPercent Change:')
+    for stock in port.keys():
+        print("%s\t\t\t\t%g\t\t\t\t%g\t\t\t\t%g\t\t\t\t%g" % (stock, port[stock][0], port[stock][1], port[stock][2], port[stock][3]))
+
+
+# str -> void
+def refreshPortfolio(user):
     if os.path.exists('data/%s-portfolio.txt' % user):
         file = open('data/%s-portfolio.txt' % user, 'r')
         portfolio = {}
@@ -30,9 +59,7 @@ def loadPortfolio(user):
             portfolio[entry[0]].append(getQuote(entry[0]))
             portfolio[entry[0]].append(100 * (portfolio[entry[0]][2] - portfolio[entry[0]][1])/portfolio[entry[0]][1] )
         file.close()
-        return portfolio
-    else:
-        return {}
+        setPortfolio(user, portfolio)
 
 
 # str -> 2darr[str, int, float, float, float]
@@ -54,6 +81,29 @@ def loadHistory(user):
         return []
 
 
+def setHistory(user, newHistory):
+    file = open('data/%s-history.txt' % user, 'w')
+    for e in newHistory:
+        file.write('%s %s %s %s %s\n' % (e[0].upper(), str(e[1]), str(e[2]), str(e[3]), str(e[4])))
+    file.close()
+
+
+# str -> void
+def showHistory(user):
+    history = loadHistory(user)
+    bought = 0
+    sold = 0
+    print('Symbol:\t\t\tShares:\t\t\tPrice:\t\t\tBought:\t\t\tSold:')
+    if history:
+        for e in history:
+            print("%s\t\t\t\t%g\t\t\t\t%g\t\t\t\t%g\t\t\t\t%g" % (e[0], e[1], e[2], e[3], e[4]))
+            bought += e[3]
+            sold += e[4]
+        percent_change = (sold - bought)/bought * 100
+        print("Net Values:")
+        print('$%g bought\t$%g sold\t%g %%' % (bought, sold, percent_change))
+
+
 # str, str, int -> void
 def buyStock(user, symbol, quantity):
     quote = getQuote(symbol.upper())
@@ -69,6 +119,8 @@ def buyStock(user, symbol, quantity):
             portfolio[symbol][0] += quantity
             totalCost += quote * quantity
             portfolio[symbol][1] = totalCost/portfolio[symbol][0]
+            portfolio[symbol][2] = quote
+            portfolio[symbol][3] = 100 * (portfolio[symbol][2] - portfolio[symbol][1])/portfolio[symbol][1]
             history.append([symbol, quantity, quote, quote*quantity, 0])
         else:
             portfolio[symbol] = [quantity, quote]
@@ -83,6 +135,7 @@ def buyStock(user, symbol, quantity):
 
 # str, str, int -> void
 # TODO: can sell stock that I do not have
+# TODO: need to restructure with new set functions and portfolio as dictionary
 def sellStock(user, symbol, quantity):
     quote = getQuote(symbol.upper())
     portfolio = loadPortfolio(user)
@@ -112,30 +165,6 @@ def sellStock(user, symbol, quantity):
     file.close()
 
 
-# str -> void
-def showPortfolio(user):
-    port = loadPortfolio(user)
-    print('Symbol:\t\t\tShares:\t\t\tThen::\t\t\ttNow:\t\t\tPercent Change:')
-    for stock in port.keys():
-        print("%s\t\t\t\t%g\t\t\t\t%g\t\t\t\t%g\t\t\t\t%g" % (stock, port[stock][0], port[stock][1], port[stock][2], port[stock][3]))
-
-
-# str -> void
-def showHistory(user):
-    history = loadHistory(user)
-    bought = 0
-    sold = 0
-    print('Symbol:\t\t\tShares:\t\t\tPrice:\t\t\tBought:\t\t\tSold:')
-    if history:
-        for e in history:
-            print("%s\t\t\t\t%g\t\t\t\t%g\t\t\t\t%g\t\t\t\t%g" % (e[0], e[1], e[2], e[3], e[4]))
-            bought += e[3]
-            sold += e[4]
-        percent_change = (sold - bought)/bought * 100
-        print("Net Values:")
-        print('$%g bought\t$%g sold\t%g %%' % (bought, sold, percent_change))
-
-
 # str -> float
 def getBalance(user):
     balance = 0
@@ -150,19 +179,6 @@ def getBalance(user):
 def setBalance(user, newBalance):
     file = open('data/%s-wallet.txt' % user, 'w')
     file.write(str(newBalance))
-    file.close()
-
-
-def setHistory(user, newHistory):
-    file = open('data/%s-history.txt' % user, 'w')
-    for e in newHistory:
-        file.write('%s %s %s %s %s\n' % (e[0].upper(), str(e[1]), str(e[2]), str(e[3]), str(e[4])))
-    file.close()
-
-def setPortfolio(user, port):
-    file = open('data/%s-portfolio.txt' % user, 'w')
-    for stock in port.keys():
-        file.write('%s %s %s\n' %(stock, str(port[stock][0]), str(port[stock][1])))
     file.close()
 
 
