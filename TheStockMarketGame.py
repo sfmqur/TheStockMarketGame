@@ -77,8 +77,8 @@ while run:
         numShares = int(numShares.strip())
         gf.sellStock(user, symbol, numShares)
 
-    elif command == 'wallet':
-        gf.wallet(user)
+    elif command == 'account':
+        gf.account(user)
 
     # see portfolio
     elif command == 'portfolio':
@@ -88,7 +88,7 @@ while run:
         gf.showPortfolio(user)
 
     elif command == 'help':
-        print('Commands: quote, buy, sell, wallet, portfolio, history, exit')
+        print('Commands: quote, buy, sell, account, portfolio, history, exit')
 
     elif command == 'exit':
         run = False

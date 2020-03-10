@@ -18,7 +18,7 @@ def getQuote(symbol):
     return float(quote.strip())
 
 
-# str -> dict of array[int, float, float, float]
+# str -> dict of array[int:quantity, float:buy quote, float:current quote, float:percent change]
 def loadPortfolio(user):
     if os.path.exists('data/%s-portfolio.txt' % user):
         file = open('data/%s-portfolio.txt' % user, 'r')
@@ -156,41 +156,59 @@ def sellStock(user, symbol, quantity):
         print("\nYou do not have enough %s stock to sell." %symbol)
 
 
-# str -> float
+# str -> [float: cash on hand, float: money added, float: account value]
 def getBalance(user):
     balance = 0
-    if os.path.exists('data/%s-wallet.txt' % user):
-        file = open('data/%s-wallet.txt' % user, 'r')
-        balance = float(file.readline().strip())
+    if os.path.exists('data/%s-account.txt' % user):
+        file = open('data/%s-account.txt' % user, 'r')
+        entry = file.readline().strip().split()
+        balance = [float(entry[0]), float(entry[1]), float(entry[2])]
         file.close()
     return balance
 
 
 # str , float -> void
 def setBalance(user, newBalance):
-    file = open('data/%s-wallet.txt' % user, 'w')
-    file.write(str(newBalance))
+    file = open('data/%s-account.txt' % user, 'w')
+    file.write("%g %g %g" %(round(newBalance[0],2), round(newBalance[1],2), round(newBalance[2],2)))
     file.close()
 
 
 # TODO: have wallet keep track of amount added to account and vs account value. and percent change of that
 # maybe add this output to the end of show portfolio
 # str -> void
-def wallet(user):
+def account(user):
     balance = getBalance(user)
 
     while True:
-        command = input("You have an account balance of $%g \nWould you like to add, remove, or exit?\n" % balance).strip()
+        command = input("You have a cash balance of $%g \n"
+                        "You have invested %g and now you have an account value of %g at  %g%% change\n"
+                        "Would you like to add, remove, update, or exit?\n"
+                        % (balance[0], balance[1], balance[2], percentChange(balance[2], balance[1]))).strip()
         if command == "add":
-            #TODO: idiot proofing
+            # TODO: idiot proofing
             add = float(input("How much would you like to add to your account?\n").strip())
-            balance += add
+            balance[0] += add
+            balance[1] += add
         elif command == "remove":
             add = float(input("How much would you like to remove from your account?\n").strip())
             if add <= balance:
-                balance -= add
+                balance[0] -= add
+                balance[1] -= add
             else:
                 print("You do not have that much money in your account.")
+        elif command == 'update':
+            refreshPortfolio(user)
+            portfolio = loadPortfolio(user)
+            value = balance[0]
+            for stock in portfolio:
+                value += portfolio[stock][0] * portfolio[stock][2]
+            balance[2] = value
         elif command == "exit":
             setBalance(user, balance)
             break
+
+
+# float, float -> float
+def percentChange(val1, val2):
+    return round(100* (val2-val1)/val1, 2)
