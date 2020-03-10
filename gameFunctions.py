@@ -36,16 +36,20 @@ def loadPortfolio(user):
 def setPortfolio(user, port):
     file = open('data/%s-portfolio.txt' % user, 'w')
     for stock in port.keys():
-        file.write('%s %s %s %s %s\n' %( stock, str(port[stock][0]), str(port[stock][1]),str(port[stock][2]),str(port[stock][3]) ))
+        if port[stock][0] > 0:
+            file.write('%s %s %s %s %s\n' %( stock, str(port[stock][0]), str(port[stock][1]),str(port[stock][2]),str(port[stock][3]) ))
     file.close()
 
 
 # str -> void
 def showPortfolio(user):
     port = loadPortfolio(user)
+    balance = getBalance(user)
     print('Symbol:\t\t\tShares:\t\t\tThen::\t\t\ttNow:\t\t\tPercent Change:')
     for stock in port.keys():
         print("%s\t\t\t\t%g\t\t\t\t%g\t\t\t\t%g\t\t\t\t%g" % (stock, port[stock][0], port[stock][1], port[stock][2], port[stock][3]))
+    print("\nCash invested: %g\tAccount Value: %g\tPercent Change: %g%%\n"
+          % (balance[1], balance[2], percentChange(balance[2], balance[1])))
 
 
 # str -> void
@@ -60,6 +64,13 @@ def refreshPortfolio(user):
             portfolio[entry[0]].append(100 * (portfolio[entry[0]][2] - portfolio[entry[0]][1])/portfolio[entry[0]][1] )
         file.close()
         setPortfolio(user, portfolio)
+
+        balance = getBalance(user)
+        value = balance[0]
+        for stock in portfolio:
+            value += portfolio[stock][0] * portfolio[stock][2]
+        balance[2] = value
+        setBalance(user, balance)
 
 
 # str -> 2darr[str, int, float, float, float]
@@ -141,6 +152,7 @@ def sellStock(user, symbol, quantity):
     portfolio = loadPortfolio(user)
     history = loadHistory(user)
     symbol = symbol.upper()
+    balance = getBalance(user)
 
     if symbol in portfolio.keys():
         if portfolio[symbol][0] >= quantity:
@@ -149,7 +161,8 @@ def sellStock(user, symbol, quantity):
 
             portfolio[symbol][2] = quote
             portfolio[symbol][3] = 100 * (portfolio[symbol][2] - portfolio[symbol][1]) / portfolio[symbol][1]
-
+            balance[0] += quote * quantity
+            setBalance(user, balance)
             setPortfolio(user, portfolio)
             setHistory(user, history)
     else:
@@ -199,11 +212,6 @@ def account(user):
                 print("You do not have that much money in your account.")
         elif command == 'update':
             refreshPortfolio(user)
-            portfolio = loadPortfolio(user)
-            value = balance[0]
-            for stock in portfolio:
-                value += portfolio[stock][0] * portfolio[stock][2]
-            balance[2] = value
         elif command == "exit":
             setBalance(user, balance)
             break
@@ -211,4 +219,4 @@ def account(user):
 
 # float, float -> float
 def percentChange(val1, val2):
-    return round(100* (val2-val1)/val1, 2)
+    return round(100* (val1-val2)/val1, 2)
