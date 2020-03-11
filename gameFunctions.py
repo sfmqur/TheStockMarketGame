@@ -123,8 +123,9 @@ def buyStock(user, symbol, quantity):
     balance = getBalance(user)
     symbol = symbol.upper()
 
-    if quote * quantity <= balance:
-        setBalance(user, balance - quote * quantity)
+    if quote * quantity <= balance[0]:
+        balance[0] -= quote * quantity
+        setBalance(user, balance)
         if symbol in portfolio.keys():
             totalCost = portfolio[symbol][0] * portfolio[symbol][1]
             portfolio[symbol][0] += quantity
@@ -219,4 +220,7 @@ def account(user):
 
 # float, float -> float
 def percentChange(val1, val2):
-    return round(100* (val1-val2)/val1, 2)
+    if val1 != 0:
+        return round(100* (val1-val2)/val1, 2)
+    else:
+        return 0
