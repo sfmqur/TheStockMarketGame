@@ -13,4 +13,4 @@ class QuoteSpider(scrapy.Spider):
         file = open('quote.txt', 'w')
         file.write(quote)
         file.close()
-        #self.log('%s %s' % (self.symbol, quote))
+        # self.log('%s %s' % (self.symbol, quote))
